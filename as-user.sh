@@ -1,8 +1,32 @@
 #!/bin/bash
 # Install steamcmd
+set -euo pipefail
+
+# Ensure curl is available
+if ! command -v curl >/dev/null 2>&1; then
+  echo "curl not available"
+  exit 1
+fi
+
 mkdir -p .steam/sdk32/
-ln -s ~/linux32/steamclient.so ~/.steam/sdk32/steamclient.so
-curl https://media.steampowered.com/installer/steamcmd_linux.tar.gz | tar -xzvf -
+
+# Download and extract steamcmd only if not present
+if [ ! -f ./steamcmd.sh ]; then
+  echo "Downloading steamcmd..."
+  curl -fsSL https://media.steampowered.com/installer/steamcmd_linux.tar.gz | tar -xzvf -
+fi
+
+# Ensure steamcmd exists and is executable
+if [ ! -f ./steamcmd.sh ]; then
+  echo "steamcmd.sh not found after download"
+  exit 1
+fi
+chmod +x ./steamcmd.sh
+
+# Create steam client symlink only if target exists
+if [ -e "$HOME/linux32/steamclient.so" ]; then
+  ln -sf "$HOME/linux32/steamclient.so" ~/.steam/sdk32/steamclient.so
+fi
 
 # Convenient symlinks for mount points
 if [ "${INSTALL_DIR}" = "l4d2" ]; then
