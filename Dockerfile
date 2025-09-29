@@ -16,10 +16,16 @@ ARG GAME_ID=222860 \
 
 EXPOSE 27015/tcp 27015/udp
 
+USER root
 ADD as-user.sh .
-# Ensure the user script is executable before running
-RUN chmod +x ./as-user.sh && ./as-user.sh
+# Ensure the user script is executable (do this as root so chmod succeeds)
+RUN chmod +x ./as-user.sh
 
+# Run installation steps as the non-root user so paths like ~ expand to /home/louis
+USER louis
+RUN ./as-user.sh
+
+USER root
 VOLUME ["/addons", "/cfg"]
 
 ENV DEFAULT_MAP=$DEFAULT_MAP \
@@ -38,4 +44,5 @@ ENV DEFAULT_MAP=$DEFAULT_MAP \
 ADD entrypoint.sh .
 # Ensure entrypoint is executable
 RUN chmod +x ./entrypoint.sh
+USER louis
 ENTRYPOINT ["./entrypoint.sh"]
