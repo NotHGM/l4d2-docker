@@ -2,6 +2,112 @@
 
 > "Oh, MAN! This is just like Counter-Strike!"
 
+## This fork (NotHGM)
+
+This repository is a fork of Left4DevOps/l4d2-docker maintained by NotHGM for HGM servers. It builds and publishes
+a Docker image to GitHub Container Registry (GHCR) under the repository namespace: `ghcr.io/NotHGM/l4d2-docker`.
+
+The included GitHub Actions workflow builds and publishes the image automatically when code is pushed to the
+`master` branch (and the workflow can also be triggered manually). The image published by this fork can be used
+directly in Docker Compose or other deployment tooling.
+
+Notes:
+- The Dockerfile accepts a build argument `SERVER_DIR_ARG` which becomes the runtime environment variable `SERVER_DIR`.
+    This defaults to `/home/louis/l4d2` for backward compatibility. You can override the build arg during build or set
+    `SERVER_DIR` at runtime to point the server to a different installation path.
+- The workflow logs into GHCR using the repository token (`GITHUB_TOKEN`) and pushes to `ghcr.io/NotHGM/l4d2-docker`.
+    If you want to publish to a different GHCR namespace, create a PAT with packages write permissions and update the
+    workflow to use a repository secret.
+
+Below is an example `docker-compose.yml` that runs five servers using the image published by this fork. Replace
+`ghcr.io/NotHGM/l4d2-docker:latest` with your own image name if you publish under a different GitHub account.
+
+```yaml
+# Example docker-compose for running five servers using the GHCR image from this fork
+services:
+    l4d2-dead-air:
+        image: ghcr.io/NotHGM/l4d2-docker:latest
+        container_name: l4d2-dead-air
+        ports:
+            - "5090:27015/udp"
+            - "5090:27015/tcp"
+        environment:
+            - GSL_TOKEN=${SRCDS_TOKEN}
+            - SERVER_HOSTNAME=[HGM] Dead Air [EU]
+            - RCON_PASSWORD=RCONPASS
+            - SOURCEMOD_ADMINS=STEAMID64
+            - START_MAP=c6m1_riverbank
+        volumes:
+            - ./server_data:/home/louis/l4d2
+        restart: unless-stopped
+
+    l4d2-death-toll:
+        image: ghcr.io/NotHGM/l4d2-docker:latest
+        container_name: l4d2-death-toll
+        ports:
+            - "5091:27015/udp"
+            - "5091:27015/tcp"
+        environment:
+            - GSL_TOKEN=${SRCDS_TOKEN}
+            - SERVER_HOSTNAME=[HGM] Death Toll [EU]
+            - RCON_PASSWORD=RCONPASS
+            - SOURCEMOD_ADMINS=STEAMID64
+            - START_MAP=c8m1_roadside
+        volumes:
+            - ./server_data:/home/louis/l4d2
+        restart: unless-stopped
+
+    l4d2-blood-harvest:
+        image: ghcr.io/NotHGM/l4d2-docker:latest
+        container_name: l4d2-blood-harvest
+        ports:
+            - "5092:27015/udp"
+            - "5092:27015/tcp"
+        environment:
+            - GSL_TOKEN=${SRCDS_TOKEN}
+            - SERVER_HOSTNAME=[HGM] Blood Harvest [EU]
+            - RCON_PASSWORD=RCONPASS
+            - SOURCEMOD_ADMINS=STEAMID64
+            - START_MAP=c7m1_docks
+        volumes:
+            - ./server_data:/home/louis/l4d2
+        restart: unless-stopped
+
+    l4d2-the-parish:
+        image: ghcr.io/NotHGM/l4d2-docker:latest
+        container_name: l4d2-the-parish
+        ports:
+            - "5093:27015/udp"
+            - "5093:27015/tcp"
+        environment:
+            - GSL_TOKEN=${SRCDS_TOKEN}
+            - SERVER_HOSTNAME=[HGM] The Parish [EU]
+            - RCON_PASSWORD=RCONPASS
+            - SOURCEMOD_ADMINS=STEAMID64
+            - START_MAP=c5m1_waterfront
+        volumes:
+            - ./server_data:/home/louis/l4d2
+        restart: unless-stopped
+
+    l4d2-hard-rain:
+        image: ghcr.io/NotHGM/l4d2-docker:latest
+        container_name: l4d2-hard-rain
+        ports:
+            - "5094:27015/udp"
+            - "5094:27015/tcp"
+        environment:
+            - GSL_TOKEN=${SRCDS_TOKEN}
+            - SERVER_HOSTNAME=[HGM] Hard Rain [EU]
+            - RCON_PASSWORD=RCONPASS
+            - SOURCEMOD_ADMINS=STEAMID64
+            - START_MAP=c3m1_plankcountry
+        volumes:
+            - ./server_data:/home/louis/l4d2
+        restart: unless-stopped
+
+```
+
+
 This repository can be used to build docker images for both Left 4 Dead and Left 4 Dead 2. You can use this repository
 to build these images yourself, or pull them from our registry on [Docker Hub](https://hub.docker.com/u/left4devops).
 
