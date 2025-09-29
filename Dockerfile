@@ -1,7 +1,8 @@
 FROM rockylinux/rockylinux:9-minimal AS base
 
 ADD as-root.sh .
-RUN ./as-root.sh
+# Ensure the script is executable before running to avoid permission denied during build
+RUN chmod +x ./as-root.sh && ./as-root.sh
 
 WORKDIR /home/louis
 USER louis
@@ -16,7 +17,8 @@ ARG GAME_ID=222860 \
 EXPOSE 27015/tcp 27015/udp
 
 ADD as-user.sh .
-RUN ./as-user.sh
+# Ensure the user script is executable before running
+RUN chmod +x ./as-user.sh && ./as-user.sh
 
 VOLUME ["/addons", "/cfg"]
 
@@ -34,4 +36,6 @@ ENV DEFAULT_MAP=$DEFAULT_MAP \
     MOTD=0
 
 ADD entrypoint.sh .
+# Ensure entrypoint is executable
+RUN chmod +x ./entrypoint.sh
 ENTRYPOINT ["./entrypoint.sh"]
