@@ -21,13 +21,17 @@ ADD as-user.sh .
 # Ensure the user script is executable (do this as root so chmod succeeds)
 RUN chmod +x ./as-user.sh
 
-# Pre-install SteamCMD into /home/louis so the steam binary and steamcmd.sh exist
-# Extracting as root avoids permission issues and makes the binary available for the
-# following non-root installer step.
-RUN mkdir -p /home/louis/linux32 \
- && curl -fsSL https://media.steampowered.com/installer/steamcmd_linux.tar.gz | tar -xzvf - -C /home/louis \
- && chown -R louis:louis /home/louis/linux32 /home/louis/steamcmd.sh || true \
- && chmod +x /home/louis/steamcmd.sh /home/louis/linux32/steamcmd || true
+# Pre-install SteamCMD into /home/louis only on amd64 so the steam binary and steamcmd.sh exist
+# If building for arm64 we skip extracting the x86 SteamCMD archive (it won't run on arm64).
+ARG TARGETARCH
+RUN if [ "${TARGETARCH}" = "amd64" ] || [ "${TARGETARCH}" = "x86_64" ]; then \
+            mkdir -p /home/louis/linux32 && \
+            curl -fsSL https://media.steampowered.com/installer/steamcmd_linux.tar.gz | tar -xzvf - -C /home/louis && \
+            chown -R louis:louis /home/louis/linux32 /home/louis/steamcmd.sh || true && \
+            chmod +x /home/louis/steamcmd.sh /home/louis/linux32/steamcmd || true; \
+        else \
+            echo "Skipping SteamCMD extraction for architecture ${TARGETARCH}"; \
+        fi
 
 # Run installation steps as the non-root user so paths like ~ expand to /home/louis
 USER louis

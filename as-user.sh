@@ -8,6 +8,29 @@ if ! command -v curl >/dev/null 2>&1; then
   exit 1
 fi
 
+# Detect architecture and skip SteamCMD on unsupported arches (e.g., aarch64)
+ARCH=$(uname -m || echo unknown)
+if [ "${ARCH}" = "aarch64" ] || [ "${ARCH}" = "arm64" ]; then
+  echo "Detected architecture ${ARCH} - SteamCMD x86 binary will not run. Skipping SteamCMD steps."
+  # Still create expected directories and symlinks for volume mounts
+  mkdir -p "$HOME/linux32" || true
+  mkdir -p .steam/sdk32/ || true
+  # Create mountpoint directories for later runtime use
+  if [ "${INSTALL_DIR}" = "l4d2" ]; then
+    GAME_DIR="${INSTALL_DIR}/left4dead2"
+  elif [ "${INSTALL_DIR}" = "l4d" ]; then
+    GAME_DIR="${INSTALL_DIR}/left4dead"
+  else
+    exit 100
+  fi
+  mkdir -p "./${GAME_DIR}" || true
+  ln -sf /addons "./${GAME_DIR}/addons" || true
+  ln -sf /cfg "./${GAME_DIR}/cfg" || true
+  ln -sf /motd/host.txt "./${GAME_DIR}/myhost.txt" || true
+  ln -sf /motd/motd.txt "./${GAME_DIR}/mymotd.txt" || true
+  exit 0
+fi
+
 mkdir -p .steam/sdk32/
 
 # Download and extract steamcmd only if not present
