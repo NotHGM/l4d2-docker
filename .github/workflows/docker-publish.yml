@@ -34,7 +34,8 @@ jobs:
       - name: Extract metadata (tags)
         id: meta
         run: |
-          echo "IMAGE_NAME=ghcr.io/${{ github.repository }}" >> $GITHUB_OUTPUT
+          # Ensure repository name is lowercase (Docker requires lowercase repository names)
+          echo "IMAGE_NAME=ghcr.io/${GITHUB_REPOSITORY,,}" >> $GITHUB_OUTPUT
           echo "SHORT_SHA=$(echo ${GITHUB_SHA} | cut -c1-7)" >> $GITHUB_OUTPUT
 
       - name: Build and push
@@ -52,4 +53,4 @@ jobs:
 
       - name: Image digest
         run: |
-          echo "Image pushed: ghcr.io/${{ github.repository }}:latest"
+          echo "Image pushed: ${{ steps.meta.outputs.IMAGE_NAME }}:latest"
