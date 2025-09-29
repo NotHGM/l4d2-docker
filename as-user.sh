@@ -13,7 +13,9 @@ mkdir -p .steam/sdk32/
 # Download and extract steamcmd only if not present
 if [ ! -f ./steamcmd.sh ]; then
   echo "Downloading steamcmd..."
-  curl -fsSL https://media.steampowered.com/installer/steamcmd_linux.tar.gz | tar -xzvf -
+  mkdir -p "$HOME/linux32"
+  # Extract into $HOME so the expected path /home/louis/linux32/steamcmd exists
+  curl -fsSL https://media.steampowered.com/installer/steamcmd_linux.tar.gz | tar -xzvf - -C "$HOME"
 fi
 
 # Ensure steamcmd exists and is executable
@@ -26,6 +28,15 @@ chmod +x ./steamcmd.sh
 # Create steam client symlink only if target exists
 if [ -e "$HOME/linux32/steamclient.so" ]; then
   ln -sf "$HOME/linux32/steamclient.so" ~/.steam/sdk32/steamclient.so
+fi
+
+# Verify steamcmd binary exists where steamcmd.sh expects it
+if [ ! -x "$HOME/linux32/steamcmd" ]; then
+  echo "steamcmd binary not found or not executable at $HOME/linux32/steamcmd"
+  echo "Listing $HOME contents for debugging:"
+  ls -l "$HOME" || true
+  ls -l "$HOME/linux32" || true
+  exit 1
 fi
 
 # Convenient symlinks for mount points
