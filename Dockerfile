@@ -21,6 +21,14 @@ ADD as-user.sh .
 # Ensure the user script is executable (do this as root so chmod succeeds)
 RUN chmod +x ./as-user.sh
 
+# Pre-install SteamCMD into /home/louis so the steam binary and steamcmd.sh exist
+# Extracting as root avoids permission issues and makes the binary available for the
+# following non-root installer step.
+RUN mkdir -p /home/louis/linux32 \
+ && curl -fsSL https://media.steampowered.com/installer/steamcmd_linux.tar.gz | tar -xzvf - -C /home/louis \
+ && chown -R louis:louis /home/louis/linux32 /home/louis/steamcmd.sh || true \
+ && chmod +x /home/louis/steamcmd.sh /home/louis/linux32/steamcmd || true
+
 # Run installation steps as the non-root user so paths like ~ expand to /home/louis
 USER louis
 RUN ./as-user.sh
