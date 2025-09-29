@@ -1,14 +1,24 @@
 #!/bin/bash
+# Use SERVER_DIR if set, otherwise fall back to original INSTALL_DIR default
+SERVER_DIR=${SERVER_DIR:-${INSTALL_DIR:-/home/louis/l4d2}}
+
 ./steamcmd.sh +runscript update.txt
 
-cd "${INSTALL_DIR}" || exit 50
+cd "${SERVER_DIR}" || exit 50
 
-if [ "${INSTALL_DIR}" = "l4d2" ]; then
+if [ "${SERVER_DIR}" = "/home/louis/l4d2" ] || [ "${INSTALL_DIR}" = "l4d2" ]; then
     GAME_DIR="left4dead2"
-elif [ "${INSTALL_DIR}" = "l4d" ]; then
+elif [ "${SERVER_DIR}" = "/home/louis/l4d" ] || [ "${INSTALL_DIR}" = "l4d" ]; then
     GAME_DIR="left4dead"
 else
-    exit 100
+    # Try to infer from INSTALL_DIR if set, else fail
+    if [ "${INSTALL_DIR}" = "l4d2" ]; then
+        GAME_DIR="left4dead2"
+    elif [ "${INSTALL_DIR}" = "l4d" ]; then
+        GAME_DIR="left4dead"
+    else
+        exit 100
+    fi
 fi
 
 if [ $# -gt 0 ]; then

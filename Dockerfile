@@ -10,7 +10,8 @@ FROM base AS game
 
 ARG GAME_ID=222860 \
     INSTALL_DIR="l4d2" \
-    DEFAULT_MAP="c14m1_junkyard"
+    DEFAULT_MAP="c14m1_junkyard" \
+    SERVER_DIR_ARG="/home/louis/l4d2"
 
 EXPOSE 27015/tcp 27015/udp
 
@@ -26,6 +27,7 @@ ENV DEFAULT_MAP=$DEFAULT_MAP \
     REGION=255 \
     GAME_ID=$GAME_ID \
     INSTALL_DIR=$INSTALL_DIR \
+    SERVER_DIR=$SERVER_DIR_ARG \
     STEAM_GROUP=0 \
     HOST_CONTENT="" \
     MOTD_CONTENT="Play nice, kill zombies" \
